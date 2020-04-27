@@ -83,9 +83,7 @@
                 buildChart()
             }
         })
-
-        console.log(state.values)
-
+        
         function buildChart() {
             var chartData = {
                 "type": "bar",
@@ -117,21 +115,13 @@
                     {
                         "values": state.values
                     }
-                ]
-            }
 
-            var chartData1 ={
-              type: 'bar',
-              series: [
-              {
-                values: state.values
-              }
-              ]
+                ]
             }
 
             zingchart.render({
                 id: 'myChart',
-                data: chartData1,
+                data: chartData,
             });
 
         }
