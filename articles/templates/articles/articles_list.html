@@ -1,0 +1,141 @@
+{% extends "articles/base.html" %}
+
+
+{% block content %}
+    <div class="container">
+        <form method="get">
+            {{ myFilter.form }}
+            <button class="btn btn-success" type="submit">
+                <i class="fas fa-search"></i> Search
+            </button>
+            </a>
+        </form>
+
+        <br>
+        <table class="table table-striped">
+            <thead class="font-weight-bold">
+            <tr>
+                <td>RFID</td>
+                <td>Article Number</td>
+                <td>Article Name</td>
+                <td>Storage Location</td>
+                <td>Price(in EUR)</td>
+                <td>
+                    <a href="{% url 'article_insert' %}" class="btn btn-success">
+                        <i class="fas fa-plus"></i> New
+                    </a>
+                </td>
+            </tr>
+            </thead>
+            <tbody>
+            {% for art in articles_list %}
+                <tr>
+                    <td>{{ art.rfid }}</td>
+                    <td>{{ art.article_num }}</td>
+                    <td>{{ art.article_name }}</td>
+                    <td>{{ art.storage_location }}</td>
+                    <td>{{ art.price }}</td>
+                    <td>
+                        <a href="{% url 'article_update' art.id %}" class="btn">
+                            <i class="far fa-edit"></i>
+                        </a>
+                        <form action="{% url 'article_delete' art.id %}" method="post" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn">
+                                <i class="far fa-trash-alt float-right text-danger"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div id="myChart"></div>
+
+    <script>
+
+
+        var state = {
+            'items': [],
+            'values': []
+        }
+
+        var dataURL = `/chart/`
+        $.ajax({
+            method: 'GET',
+            url: dataURL,
+            success: function (response) {
+                console.log('RESPONSE:', response)
+
+                for (var i in response) {
+
+                    var key = Object.keys(response[i])[0]
+                    var value = Object.values(response[i])[0]
+
+                    console.log(key, value)
+
+                    state.items.push(key)
+                    state.values.push(value)
+                }
+
+                console.log('STATE:', state)
+                buildChart()
+            }
+        })
+
+        console.log(state.values)
+
+        function buildChart() {
+            var chartData = {
+                "type": "bar",
+
+                scaleY: {
+                    values: '0:5:1',
+                    minValue: '0',
+                    item: {
+                        rules: [
+                            {
+                                rule: '%i === 0',
+                                visible: false
+                            }
+                        ]
+                    }
+                },
+                scaleX: {
+                    "values": state.keys,
+                    item: {
+                        rules: [
+                            {
+                                rule: '%i === 0',
+                                offsetX: -10
+                            }
+                        ]
+                    }
+                },
+                "series": [
+                    {
+                        "values": state.values
+                    }
+                ]
+            }
+
+            var chartData1 ={
+              type: 'bar',
+              series: [
+              {
+                values: state.values
+              }
+              ]
+            }
+
+            zingchart.render({
+                id: 'myChart',
+                data: chartData1,
+            });
+
+        }
+
+    </script>
+
+{% endblock %}
